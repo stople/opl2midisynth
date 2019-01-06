@@ -9,7 +9,7 @@
 //#include <midi_instruments.h>
 extern const unsigned char *midiInstruments[];
 
-#include <Opl2Instrument.h>
+#include "Opl2Instrument.h"
 byte CurrentOplProgram = 0;
 
 //Instrument control
