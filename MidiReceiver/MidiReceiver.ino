@@ -1,3 +1,13 @@
+// OPL2 MIDI synthesizer
+//
+// Dependencies:
+// ArduinoOPL2 by DhrBaksteen
+// Bounce2 for button press
+//
+// Input: Stream of MIDI data
+// Output: OPL2 data stream
+
+
 #include <Bounce2.h>
 
 //Floppy
