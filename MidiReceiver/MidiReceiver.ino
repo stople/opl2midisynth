@@ -10,7 +10,7 @@
 
 #include <Bounce2.h>
 
-#include "midi_instruments_names.h"
+#include "Parameters.h"
 
 //OPL2
 extern const unsigned char *midiInstruments[];
@@ -49,18 +49,7 @@ void PrintHex8(uint8_t *data, uint8_t length); // prints 8-bit data in hex with 
 void setPartMidiPos();
 
 
-typedef struct _PARAMETER
-{
-  byte val;
-  const byte max;
-  const char ** paramNames;
-  void (*OnChange)();
-} PARAMETER;
 
-const char textDisabled[] PROGMEM = "Disabled";
-const char textEnabled[] PROGMEM = "Enabled";
-const char* const disableEnableNames[] PROGMEM = {textDisabled, textEnabled};
-PARAMETER debugMode {0, 1, disableEnableNames, NULL};
 
 void incrementParameter(void *par)
 {
@@ -312,10 +301,6 @@ void loop() {
 
 
 
-PARAMETER midiInstrument {0, 127, midiInstrumentNames, setMidiInstrument};
-
-PARAMETER partMidiInstrument {0, 127, midiInstrumentNames, NULL};
-PARAMETER partMidiPos {0, 10, NULL, NULL};
 
 
 typedef struct _MENU_ITEM
@@ -394,36 +379,6 @@ const char textDeepTremolo[] PROGMEM = "Deep tremolo";
 const char textDeepVibrato[] PROGMEM = "Deep vibrato";
 
 
-const char textFULL[] PROGMEM = "FULL";
-const char textPOSITIVE_HALF[] PROGMEM = "POSITIVE_HALF";
-const char textPOSITIVE_FULL[] PROGMEM = "POSITIVE_FULL";
-const char textPOSITIVE_CAPPED[] PROGMEM = "POSITIVE_CAPPED";
-const char* const waveFormNames[] PROGMEM = {textFULL, textPOSITIVE_HALF, textPOSITIVE_FULL, textPOSITIVE_CAPPED};
-
-const char textOp2Only[] PROGMEM = "Op2Only";
-const char textBothOperators[] PROGMEM = "Both operators";
-const char* const synthModeNames[] PROGMEM = {textOp2Only, textBothOperators};
-
-PARAMETER parOperator {0, 1, NULL, loadCustomInstrumentParameters};
-
-PARAMETER parWaveformSelect {0, 1, disableEnableNames, setCustomInstrument};
-PARAMETER parTremolo {0, 1, disableEnableNames, setCustomInstrument};
-PARAMETER parVibrato {0, 1, disableEnableNames, setCustomInstrument};
-PARAMETER parSustainEnabled {0, 1, disableEnableNames, setCustomInstrument};
-PARAMETER parKSR {0, 1, disableEnableNames, setCustomInstrument};
-PARAMETER parFreqMult {0, 15, NULL, setCustomInstrument};
-PARAMETER parKeyScaleLevel {0, 3, NULL, setCustomInstrument};
-PARAMETER parOutputLevel {0, 63, NULL, setCustomInstrument};
-PARAMETER parAttack {0, 15, NULL, setCustomInstrument};
-PARAMETER parDecay {0, 15, NULL, setCustomInstrument};
-PARAMETER parSustain {0, 15, NULL, setCustomInstrument};
-PARAMETER parRelease {0, 15, NULL, setCustomInstrument};
-PARAMETER parModFbFactor {0, 7, NULL, setCustomInstrument};
-PARAMETER parSynthType {0, 1, synthModeNames, setCustomInstrument};
-PARAMETER parWaveform {0, 3, waveFormNames, setCustomInstrument};
-PARAMETER parFNumber {0, 1023, NULL, setCustomInstrument};
-PARAMETER parDeepTremolo {0, 1, disableEnableNames, setCustomInstrument};
-PARAMETER parDeepVibrato {0, 1, disableEnableNames, setCustomInstrument};
 
 
 MENU_ITEM tweakMenu[] = {
