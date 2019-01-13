@@ -12,17 +12,13 @@
 
 #include "Parameters.h"
 #include "Menu.h"
+#include "Debug.h"
 
 //OPL2
 extern const unsigned char *midiInstruments[];
 
 #include "Opl2Instrument.h"
-byte CurrentOplProgram = 0;
 
-//Instrument control
-bool BuzzerEnabled = false;
-bool Opl2Enabled = true;
-int ActiveInstruments = 1;
 
 int PotmeterLock = -1;
 byte LastPotmeterReadoutTime = 0;
@@ -37,16 +33,12 @@ enum {
   BuzzerPin = 4
 };
 
-int Demo = 0;
 
 #define NUM_BUTTONS 4
 const int BUTTON_PINS[NUM_BUTTONS] = {DebugTogglePin, InstrumentCyclePin, DemoPin, ExtraButtonPin};
 
 Bounce * buttons = new Bounce[NUM_BUTTONS];
 
-void menuInput(int button);
-void setCurrentParameterFromPotmeter(int potmeter);
-void PrintHex8(uint8_t *data, uint8_t length); // prints 8-bit data in hex with leading zeroes (https://forum.arduino.cc/index.php?topic=38107.0)
 void setPartMidiPos();
 
 
@@ -92,103 +84,6 @@ int midiToFrequency(int midiPitch)
 }
 
 
-//int currentFloppyKey = 0;
-int currentBuzzerKey = 0;
-
-
-void toggleInstrument(bool *instrumentCtrl)
-{
-  if (*instrumentCtrl)
-  {
-    if (ActiveInstruments <= 1) return;
-    *instrumentCtrl = false;
-    ActiveInstruments--;
-  }
-  else
-  {
-    *instrumentCtrl = true;
-    ActiveInstruments++;
-  }
-}
-
-//extern int toggleCtr;
-
-void debugInterface() {
-  if (Serial.available())
-  {
-    int cmd = Serial.read();
-    if (cmd == 'a') //debug
-    {
-      Serial.write("T");
-      Serial.write("E");
-      Serial.write("S");
-      Serial.write("T");
-      return;
-    }
-    if (cmd == 's') //debug
-    {
-      Serial.println("TestNL");
-      return;
-    }
-    if (cmd == 'd') //play floppy note 220hz
-    {
-      Serial.println("StartFloppy");
-      //Floppy1.setTone(220);
-      return;
-    }
-    if (cmd == 'f') //play floppy note 220hz
-    {
-      Serial.println("StopFloppy");
-      //Floppy1.stopTone();
-      return;
-    }
-    if (cmd == 'g') //play opl tone
-    {
-      Serial.println("Play 80");
-      Opl2Instrument1.onNoteOn(0, 80, 80);
-      return;
-    }
-    if (cmd == 'b') //play opl tone
-    {
-      Serial.println("Stop 80");
-      Opl2Instrument1.onNoteOff(0, 80, 0);
-      return;
-    }
-    if (cmd == 'h') //play opl tone
-    {
-      Serial.println("Play 100");
-      Opl2Instrument1.onNoteOn(0, 100, 80);
-      return;
-    }
-    if (cmd == 'n') //play opl tone
-    {
-      Serial.println("Stop 100");
-      Opl2Instrument1.onNoteOff(0, 100, 0);
-      return;
-    }
-    if (cmd == 'i') //instrument
-    {
-      Serial.print("Instrument ");
-          CurrentOplProgram++;
-          if (CurrentOplProgram > 127) CurrentOplProgram = 0;
-      Serial.println(CurrentOplProgram);
-          for (byte i = 0; i < Opl2Instrument::MIDI_NUM_CHANNELS; ++i)
-          {
-            Opl2Instrument1.onProgramChange(i, CurrentOplProgram);
-          }
-      return;
-    }
-    if (cmd == 'p') //panic
-    {
-      Serial.println("Panic");
-            Opl2Instrument1.onSystemReset();
-      return;
-    }
-    
-  }
-
-}
-
 void readMidiFromSerial() {
   if (Serial.available() >= 3)
   {
@@ -204,8 +99,7 @@ void readMidiFromSerial() {
         int velocity = Serial.read();
         if (velocity >= 128) return;
 
-        if (pitch == currentBuzzerKey) noTone(BuzzerPin);
-        if (Opl2Enabled) Opl2Instrument1.onNoteOff(channel, pitch, velocity);
+        Opl2Instrument1.onNoteOff(channel, pitch, velocity);
 
         break;
       }
@@ -221,7 +115,7 @@ void readMidiFromSerial() {
         if (velocity >= 1) noteOn = 1;
 
 
-        if (Opl2Enabled) Opl2Instrument1.onNoteOn(channel, pitch, velocity);
+        Opl2Instrument1.onNoteOn(channel, pitch, velocity);
         
  
         break;
@@ -251,11 +145,9 @@ unsigned long lastDebounceTime = 0;
 void readButtons()
 {
   for (int i = 0; i < NUM_BUTTONS; i++)  {
-    // Update the Bounce instance :
     buttons[i].update();
-    // If it fell, flag the need to toggle the LED
     if ( buttons[i].rose() ) {
-      PotmeterLock = analogRead(PotmeterPin);
+      PotmeterLock = analogRead(PotmeterPin); //Lock potmeter to current position
       Serial.print("button ");
       Serial.println(i);
 
@@ -302,8 +194,6 @@ void setMidiInstrument()
   Serial.print(instrument);
   Serial.print("\n");
 
-    //Opl2Instrument1._opl2.setInstrument(3, midiInstruments[instrument]);
-
   for (byte ch = 0; ch < OPL2_NUM_CHANNELS; ++ch)
   {
     Opl2Instrument1._opl2.setInstrument(ch, midiInstruments[instrument]);
@@ -311,7 +201,6 @@ void setMidiInstrument()
 
   }
 
-    //dumpOplReg();
   loadCustomInstrumentParameters();
 }
 
@@ -377,48 +266,6 @@ void incrementMidiInstrument()
   //setMidiInstrument();
 }
 
-void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex with leading zeroes (https://forum.arduino.cc/index.php?topic=38107.0)
-{
-     char tmp[16];
-       for (int i=0; i<length; i++) { 
-         sprintf(tmp, "%.2X",data[i]); 
-         Serial.print(tmp); Serial.print(" ");
-       }
-}
-
-void dumpOplReg()
-{
-  int i, j;
-  byte data;
-  for (i = 0; i < 256; i += 16)
-  {
-    data = (byte)i;
-    PrintHex8(&data, 1);
-    Serial.print(" ");
-    for (j = 0; j < 16; ++j)
-    {
-      data = Opl2Instrument1._opl2.getRegister(i + j);
-      PrintHex8(&data, 1);
-      Serial.print(" ");
-    }
-    Serial.print("\n");
-  }
-  Serial.print("\n\n\n");
-}
-
-void dumpCurrentInstrument()
-{
-  byte ch = 0;
-  Serial.print("SynthType ");
-  Serial.println(parSynthType.val);
-  Serial.print("Op0 waveform ");
-  Serial.println(Opl2Instrument1._opl2.getWaveForm(ch, 0));
-  Serial.print("Op1 waveform ");
-  Serial.println(Opl2Instrument1._opl2.getWaveForm(ch, 1));
-  
-  Serial.print("\n\n\n");
-
-}
 
 void setPartParam(byte ins, byte pos)
 {
