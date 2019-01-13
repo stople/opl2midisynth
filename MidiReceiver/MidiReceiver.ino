@@ -51,13 +51,6 @@ void setPartMidiPos();
 
 
 
-void incrementParameter(void *par)
-{
-  PARAMETER *p = (PARAMETER*)par;
-  p->val++;
-  if (p->val > p->max) p->val = 0;
-  if (p->OnChange) p->OnChange();
-}
 
 
 
@@ -573,7 +566,7 @@ void loadCustomInstrumentParameters()
 
 void incrementMidiInstrument()
 {
-  incrementParameter((void*)&midiInstrument);
+  incrementParameterWithChangeTrigger((void*)&midiInstrument);
   //setMidiInstrument();
 }
 
