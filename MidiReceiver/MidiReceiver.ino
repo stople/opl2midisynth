@@ -12,13 +12,7 @@
 
 #include "midi_instruments_names.h"
 
-//Floppy
-//#include <FloppyInstrument.h>
-//#include <TimerOne.h>
-//boolean firstRun = true; // Used for one-run-only stuffs;
-
 //OPL2
-//#include <midi_instruments.h>
 extern const unsigned char *midiInstruments[];
 
 #include "Opl2Instrument.h"
@@ -26,13 +20,11 @@ byte CurrentOplProgram = 0;
 
 //Instrument control
 bool BuzzerEnabled = false;
-//bool FloppyEnabled = false;
 bool Opl2Enabled = true;
 int ActiveInstruments = 1;
 
 int PotmeterLock = -1;
 byte LastPotmeterReadoutTime = 0;
-//const int BuzzerPin = 4;
 
 enum {
   DebugTogglePin = A0,
@@ -44,15 +36,6 @@ enum {
   BuzzerPin = 4
 };
 
-//const int DebugTogglePin = A0;
-//const int InstrumentCyclePin = A1;
-//const int DemoPin = A2;
-//const int ExtraButtonPin = A3;
-
-//const int PotmeterPin = A4;
-
-//int DebugMode = 0;
-//int CurrentInstrument = 0;
 int Demo = 0;
 
 #define NUM_BUTTONS 4
@@ -91,14 +74,9 @@ void incrementParameter(void *par)
 
 
 void setup() {
-//Floppy
-  //Floppy1.init(2, 3);
 
   //Opl2
   Opl2Instrument1.onSystemReset();
-
-  //Buzzer
-  pinMode(BuzzerPin, OUTPUT);
 
   //Buttons
   for (int i = 0; i < NUM_BUTTONS; i++) {
@@ -108,18 +86,8 @@ void setup() {
 
   PotmeterLock = analogRead(PotmeterPin);
 
-  /*
-    pinMode(DebugTogglePin, INPUT);
-    pinMode(InstrumentCyclePin, INPUT);
-    pinMode(DemoPin, INPUT);
-    pinMode(ExtraButtonPin, INPUT);
-*/
 //Midi input
   Serial.begin(57600);
-  /*while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-  Serial.write(STARTUP_MSG);*/
 }
 
 //60 -> tone C4 (262)
@@ -254,7 +222,6 @@ void readMidiFromSerial() {
         if (velocity >= 128) return;
 
         if (pitch == currentBuzzerKey) noTone(BuzzerPin);
-        //if (pitch == currentFloppyKey) Floppy1.stopTone();
         if (Opl2Enabled) Opl2Instrument1.onNoteOff(channel, pitch, velocity);
 
         break;
@@ -270,79 +237,10 @@ void readMidiFromSerial() {
         int noteOn = 0;
         if (velocity >= 1) noteOn = 1;
 
-        /*
-        //Control key?
-        if (pitch == 21) //A0 - toggle buzzer
-        {
-          toggleInstrument(&BuzzerEnabled);
-          return;
-        }
-        //if (pitch == 22) //Bb0 - toggle floppy
-        //{
-        //  toggleInstrument(&FloppyEnabled);
-        //  return;
-        //}
-        if (pitch == 23) //B0 - toggle OPL2
-        {
-          toggleInstrument(&Opl2Enabled);
-          if (!Opl2Enabled)
-          {
-            Opl2Instrument1.onSystemReset();
-            CurrentOplProgram = 0;
-          }
-          return;
-        }
-        if (pitch == 24 && Opl2Enabled) //C1 - Cycle instruments
-        {
-          incrementMidiInstrument();
-          return;
-        }
-        */
-
 
         if (Opl2Enabled) Opl2Instrument1.onNoteOn(channel, pitch, velocity);
         
-        //currentKey = pitch;
-        
-        if (noteOn)
-        {
-          int freq = midiToFrequency(pitch);
-
-/*
-          if (BuzzerEnabled && FloppyEnabled)
-          {
-            //Split on C4 (60)
-            if (pitch < 60)
-            {
-              currentFloppyKey = pitch;
-              Floppy1.setTone(freq);
-            }
-            else
-            {
-              currentBuzzerKey = pitch;
-              tone(BuzzerPin, freq);
-            }
-          }
-          else if (FloppyEnabled)
-          {
-              currentFloppyKey = pitch;
-              Floppy1.setTone(freq);
-          }
-          else */if (BuzzerEnabled)
-          {
-              currentBuzzerKey = pitch;
-              tone(BuzzerPin, freq);
-          }
-
-          
-          //if (BuzzerEnabled) tone(8, freq);
-          //if (FloppyEnabled) Floppy1.setTone(freq);
-        }
-        else
-        {
-          if (pitch == currentBuzzerKey) noTone(BuzzerPin);
-          //if (pitch == currentFloppyKey) Floppy1.stopTone();
-        }
+ 
         break;
   
       }
@@ -353,7 +251,6 @@ void readMidiFromSerial() {
 void tick()
 {
 
-  //Floppy1.togglePin();
 }
 
 int DebugTogglePinState = LOW;
@@ -376,17 +273,8 @@ void readButtons()
     // If it fell, flag the need to toggle the LED
     if ( buttons[i].rose() ) {
       PotmeterLock = analogRead(PotmeterPin);
-      //needToToggleLed = true;
       Serial.print("button ");
       Serial.println(i);
-
-      /*if (i == 0)
-      {
-        DebugMode++;
-        if (DebugMode > 1) DebugMode = 0;
-        Serial.print("DebugTogglePin toggled, new mode ");
-        Serial.println(DebugMode);
-      }*/
 
       menuInput(i);
       
@@ -402,114 +290,18 @@ void readButtons()
 
   byte diff = (byte)millis() - LastPotmeterReadoutTime;
 
-  //if ((byte)millis() - LastPotmeterReadoutTime < 100) return; //100 ms between each update
   if (diff < 100) return; //100 ms between each update
   LastPotmeterReadoutTime = (byte)millis();
   setCurrentParameterFromPotmeter(potmeter);
 
-
-/*  
-  int debounce = 0;
-  //const int debounceDelay = 50;
-  const long debounceDelay = 200;
-  int debugToggleReading = digitalRead(DebugTogglePin);
-  int debugToggleReading = digitalRead(DebugTogglePin);
-  int debugToggleReading = digitalRead(DebugTogglePin);
-  int debugToggleReading = digitalRead(DebugTogglePin);
-  
-  if (digitalRead(DebugTogglePin) != DebugTogglePinState) debounce = 1;
-  if (digitalRead(InstrumentCyclePin) != InstrumentCyclePinState) debounce = 1;
-  if (digitalRead(DemoPin) != DemoPinState) debounce = 1;
-  if (digitalRead(ExtraButtonPin) != ExtraButtonPinState) debounce = 1;
-
-  if (debounce != 0) lastDebounceTime = millis();
-  //Serial.println(debounce);
-  Serial.println(digitalRead(DebugTogglePin));
-
-  if ((millis() - lastDebounceTime) > debounceDelay)
-  {
-          //Serial.println(millis() - lastDebounceTime);
-          //Serial.println(millis());
-          //Serial.println(lastDebounceTime);
-
-    if (DebugTogglePinState == LOW && digitalRead(DebugTogglePin) == HIGH) {
-      DebugMode++;
-      if (DebugMode > 1) DebugMode = 0;
-      Serial.print("DebugTogglePin toggled, new mode ");
-      Serial.println(DebugMode);
-    }
-    
-    DebugTogglePinState = digitalRead(DebugTogglePin);
-    InstrumentCyclePinState = digitalRead(InstrumentCyclePin);
-    DemoPinState = digitalRead(DemoPin);
-    ExtraButtonPinState = digitalRead(ExtraButtonPin);
-  }
-
-  DebugTogglePinLast = digitalRead(DebugTogglePin);
-  InstrumentCyclePinLast = digitalRead(InstrumentCyclePin);
-  DemoPinLast = digitalRead(DemoPin);
-  ExtraButtonPinLast = digitalRead(ExtraButtonPin);
-*/  
 }
 
 void loop() {
-  //The first loop, reset all the drives, and wait 2 seconds...
-  /*if (firstRun)
-  {
-    firstRun = false;
-    //Floppy1.firstRun();
-
-    Floppy1.reset();
-    delay(2000);
-    Timer1.initialize(1136);
-    Timer1.attachInterrupt(tick);
-    Timer1.stop();
-
-  }*/
-/*
-  if (toggleCtr > 440)
-  {
-    cli();
-    toggleCtr = 0;
-    sei();
-    Serial.println("tick * 440");
-    
-  }
-  */
-  //readMidiFromSerial();
 
   readButtons();
   if (debugMode.val) debugInterface();
-  else readMidiFromSerial();
-  //debugInterface();
-  
+  else readMidiFromSerial();  
 }
-/*
-struct MenuOption {
-  uint8_t parent;
-  uint8_t options;
-  uint8_t next;
-  uint8_t child;
-}
-
-enum Menu {
-  MENU_ROOT = 0,
-  INSSELECT = 1,
-  DEBUGSEL = 2,
-}
-
-#define MENU 1
-#define MENU_ 1
-MenuOption menu[200];
-#define 
-
-const menu[MENU_ROOT] = {
-  
-}
-
-
-const unsigned char MENU_ROOT_D[2]   PROGMEM = { INSSELECT, 0x33, 0x5A, 0xB2, 0x50, 0x01, 0x00, 0x31, 0x00, 0xB1, 0xF5, 0x01 };
-*/
 
 //Copied from ArduinoUserInterface
 
@@ -550,15 +342,6 @@ enum {
   MENU_ITEM_TYPE_PARAMETER        = 6
 } MENU_ITEM_TYPE;
 
-/*const byte MENU_ITEM_TYPE_MAIN_MENU_HEADER = 0;
-const byte MENU_ITEM_TYPE_SUB_MENU_HEADER  = 1;
-const byte MENU_ITEM_TYPE_SUB_MENU         = 2;
-const byte MENU_ITEM_TYPE_COMMAND          = 3;
-const byte MENU_ITEM_TYPE_TOGGLE           = 4;
-const byte MENU_ITEM_TYPE_END_OF_MENU      = 5;
-const byte MENU_ITEM_TYPE_PARAMETER        = 6;
-*/
-
 
 
 const char textDebugInput[] PROGMEM = "Debug input";
@@ -575,10 +358,8 @@ extern MENU_ITEM tweakMenu[];
 MENU_ITEM mainMenu[] = {
   {MENU_ITEM_TYPE_MAIN_MENU_HEADER,  NULL,                NULL,              mainMenu,  NULL},
   {MENU_ITEM_TYPE_PARAMETER,         textDebugInput,      NULL,              NULL,      &debugMode},
-//  {MENU_ITEM_TYPE_SUB_MENU,        "External instrument",  NULL,           blinkMenu, NULL},
   {MENU_ITEM_TYPE_PARAMETER,         textMidiInstrument,  setMidiInstrument, NULL,      &midiInstrument},
   {MENU_ITEM_TYPE_SUB_MENU,          textInstrumentTweak, NULL,              tweakMenu, NULL},
-//  {MENU_ITEM_TYPE_SUB_MENU,          "Blink",           NULL,                       blinkMenu},
   {MENU_ITEM_TYPE_COMMAND,           textAbout,           NULL,    NULL, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textDumpOplReg,      dumpOplReg,    NULL, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textDumpCurrentInstrument,      dumpCurrentInstrument,    NULL, NULL},
@@ -847,11 +628,6 @@ void setCurrentParameterFromPotmeter(int potmeter)
   if (m->MenuItemType == MENU_ITEM_TYPE_PARAMETER)
   {
     PARAMETER* p = m->MenuItemParameter;
-    //float flPot = (float)potmeter;
-    //float flNewVal = (float)potmeter / 1023 * p->max;
-    
-    //int newVal = potmeter / (1024 / (p->max + 1));
-    //int newVal = (int)flNewVal;
     int newVal = (int)((float)potmeter / 1024 * (p->max + 1));
     if (newVal > p->max) newVal = p->max;
     if (newVal != p->val)
@@ -861,7 +637,6 @@ void setCurrentParameterFromPotmeter(int potmeter)
       if (p->OnChange) p->OnChange();
 
     }
-    //p->val = (int)((float)potmeter / 1023 * p->max);
   }
 }
 
@@ -880,7 +655,6 @@ void dumpOplReg()
   byte data;
   for (i = 0; i < 256; i += 16)
   {
-    //Serial.print(i, HEX);
     data = (byte)i;
     PrintHex8(&data, 1);
     Serial.print(" ");
@@ -888,7 +662,6 @@ void dumpOplReg()
     {
       data = Opl2Instrument1._opl2.getRegister(i + j);
       PrintHex8(&data, 1);
-      //Serial.print(Opl2Instrument1._opl2.getRegister(i + j), HEX);
       Serial.print(" ");
     }
     Serial.print("\n");
@@ -923,27 +696,8 @@ void setPartParam(byte ins, byte pos)
   #endif
 
   Opl2Instrument1._opl2.setWaveFormSelect(true);
-  /*
-  //byte data;
-  
-  Serial.print("SetInstrument ch:");
-  //data = (byte)channel;
-    PrintHex8(&channel, 1);
 
-  //Serial.print(channel);
-  Serial.print(" ptr ");
-  
-  //data = (byte)((uint16_t)instrument >> 8);
-    PrintHex8(instrument, 2);
-
-  
-  //Serial.print((uint16_t)instrument);
-  Serial.print(" percch:");
-    PrintHex8(&percussionChannel, 1);
-  //Serial.print(percussionChannel);
-  Serial.print("\n");
-*/
-      byte i = pos;
+  byte i = pos;
       for (byte channel = 0; channel < 9; channel ++) {
 
         byte reg;
