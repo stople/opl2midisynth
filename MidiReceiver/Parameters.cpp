@@ -2,10 +2,31 @@
 #define PARAMETERS_cpp
 
 #include <Arduino.h>
-
 #include "parameters.h"
 
 
+
+//Const string defines
+
+#include "midi_instruments_names.h"
+
+const char textDisabled[] PROGMEM = "Disabled";
+const char textEnabled[] PROGMEM = "Enabled";
+const char* const disableEnableNames[] PROGMEM = {textDisabled, textEnabled};
+
+const char textFULL[] PROGMEM = "FULL";
+const char textPOSITIVE_HALF[] PROGMEM = "POSITIVE_HALF";
+const char textPOSITIVE_FULL[] PROGMEM = "POSITIVE_FULL";
+const char textPOSITIVE_CAPPED[] PROGMEM = "POSITIVE_CAPPED";
+const char* const waveFormNames[] PROGMEM = {textFULL, textPOSITIVE_HALF, textPOSITIVE_FULL, textPOSITIVE_CAPPED};
+
+const char textOp2Only[] PROGMEM = "Op2Only";
+const char textBothOperators[] PROGMEM = "Both operators";
+const char* const synthModeNames[] PROGMEM = {textOp2Only, textBothOperators};
+
+
+
+//Public functions
 void incrementParameterWithChangeTrigger(void *par)
 {
   PARAMETER *p = (PARAMETER*)par;
@@ -13,6 +34,14 @@ void incrementParameterWithChangeTrigger(void *par)
   if (p->val > p->max) p->val = 0;
   if (p->OnChange) p->OnChange();
 }
+
+
+
+
+//OnChange return functions
+void setMidiInstrument();
+void loadCustomInstrumentParameters();
+void setCustomInstrument();
 
 
 
