@@ -13,36 +13,27 @@
 #include "Parameters.h"
 #include "Menu.h"
 #include "Debug.h"
+#include "Opl2Instrument.h"
 
 //OPL2
 extern const unsigned char *midiInstruments[];
 
-#include "Opl2Instrument.h"
-
-
+//Potmeter
 int PotmeterLock = -1;
 byte LastPotmeterReadoutTime = 0;
 
-enum {
-  DebugTogglePin = A0,
-  InstrumentCyclePin = A1,
-  DemoPin = A2,
-  ExtraButtonPin = A3,
-  PotmeterPin = A4,
-
-  BuzzerPin = 4
-};
-
-
+//Buttons
+unsigned long lastDebounceTime = 0;
 #define NUM_BUTTONS 4
-const int BUTTON_PINS[NUM_BUTTONS] = {DebugTogglePin, InstrumentCyclePin, DemoPin, ExtraButtonPin};
-
+enum {
+  BtnMenuBackPin = A0,
+  BtnMenuLeftPin = A1,
+  BtnMenuRightPin = A2,
+  BtnMenuEnterPin = A3,
+  PotmeterPin = A4
+};
+const int BUTTON_PINS[NUM_BUTTONS] = {BtnMenuBackPin, BtnMenuLeftPin, BtnMenuRightPin, BtnMenuEnterPin};
 Bounce * buttons = new Bounce[NUM_BUTTONS];
-
-void setPartMidiPos();
-
-
-
 
 
 
@@ -125,22 +116,6 @@ void readMidiFromSerial() {
   }  
 }
 
-void tick()
-{
-
-}
-
-int DebugTogglePinState = LOW;
-int InstrumentCyclePinState = LOW;
-int DemoPinState = LOW;
-int ExtraButtonPinState = LOW;
-
-int DebugTogglePinLast = LOW;
-int InstrumentCyclePinLast = LOW;
-int DemoPinLast = LOW;
-int ExtraButtonPinLast = LOW;
-
-unsigned long lastDebounceTime = 0;
 
 void readButtons()
 {
