@@ -53,7 +53,8 @@ void setup() {
   PotmeterLock = analogRead(PotmeterPin);
 
 //Midi input
-  Serial.begin(57600);
+  //Serial.begin(57600);
+  Serial.begin(31250);
 }
 
 //60 -> tone C4 (262)
