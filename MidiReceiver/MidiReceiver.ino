@@ -7,6 +7,14 @@
 // Input: Stream of MIDI data
 // Output: OPL2 data stream
 
+#include <LiquidCrystal.h>
+
+
+//const int LED_rs = 7, LED_en = 6, LED_d4 = 5, LED_d5 = 4, LED_d6 = 3, LED_d7 = 2;
+//enum { LED_rs = 7, LED_en = 6, LED_d4 = 5, LED_d5 = 4, LED_d6 = 3, LED_d7 = 2};
+enum { LED_rs = 7, LED_en = 6, LED_d4 = 5, LED_d5 = 4, LED_d6 = 3, LED_d7 = 2};
+LiquidCrystal lcd(LED_rs, LED_en, LED_d4, LED_d5, LED_d6, LED_d7);
+
 
 #include <Bounce2.h>
 
@@ -37,9 +45,24 @@ Bounce * buttons = new Bounce[NUM_BUTTONS];
 
 
 
+void printChar(char c)
+{
+  Serial.print(c);
+  lcd.print(c);
+}
+
+void printString(char *s)
+{
+  Serial.print(s);
+  lcd.print(s);
+}
+
 
 
 void setup() {
+
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
 
   //Opl2
   Opl2Instrument1.onSystemReset();

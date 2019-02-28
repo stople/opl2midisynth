@@ -4,7 +4,10 @@
 #include <Arduino.h>
 #include "Menu.h"
 
-
+#include <LiquidCrystal.h>
+void printChar(char c);
+void printString(char *s);
+extern LiquidCrystal lcd;
 
 //Const string defines
 
@@ -102,7 +105,8 @@ void printStringFromProgMem(char* s)
   for (byte k = 0; k < strlen_P(s); k++)
   {
     char c =  pgm_read_byte_near(s + k);
-    Serial.print(c);
+    printChar(c);
+    //Serial.print(c);
   }  
 }
 
@@ -110,20 +114,33 @@ void drawMenuOption(){
   char buffer[40];
   MENU_ITEM* m = &currentMenu[currentMenuIndex];
 
+  //lcd.setCursor(0, 0);
+  lcd.clear();
   printStringFromProgMem(m->MenuItemText);
 
   if (m->MenuItemType == MENU_ITEM_TYPE_PARAMETER)
   {
     PARAMETER* p = m->MenuItemParameter;
+
+    lcd.setCursor(0, 1);
+    
+    //printString(" (");
     Serial.print(" (");
-    Serial.print(p->val);
+
+    sprintf(buffer, "%d", p->val);
+    printString(buffer);
+    //Serial.print(p->val);
+    
     if (p->paramNames)
     {
-      Serial.print(" ");
+      //Serial.print(" ");
+      printString(" ");
       strcpy_P(buffer, (char*)pgm_read_word(&(p->paramNames[p->val]))); // Necessary casts and dereferencing, just copy.
-      Serial.print(buffer);
+      //Serial.print(buffer);
+      printString(buffer);
     }
     Serial.print(")");
+    //printString(")");
   }
   Serial.print("\n");  
 }
