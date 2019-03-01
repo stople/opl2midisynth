@@ -18,6 +18,7 @@ const char textInstrumentTweak[] PROGMEM = "Instrument tweak";
 const char textDumpOplReg[] PROGMEM = "Dump opl registers";
 const char textDumpCurrentInstrument[] PROGMEM = "Dump current instrument";
 const char textAbout[] PROGMEM = "About";
+const char textDemo[] PROGMEM = "Demo";
 const char textPartMidiInstrument[] PROGMEM = "Part midi instrument";
 const char textPartMidiPos[] PROGMEM = "Part midi pos";
 
@@ -173,7 +174,7 @@ void setMidiInstrument();
 void dumpOplReg();
 void dumpCurrentInstrument();
 void setPartMidiPos();
-
+void playSong();
 
 
 
@@ -183,6 +184,7 @@ MENU_ITEM mainMenu[] = {
   {MENU_ITEM_TYPE_PARAMETER,         textMidiInstrument,  setMidiInstrument, NULL,      &midiInstrument},
   {MENU_ITEM_TYPE_SUB_MENU,          textInstrumentTweak, NULL,              tweakMenu, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textAbout,           NULL,    NULL, NULL},
+  {MENU_ITEM_TYPE_COMMAND,           textDemo,            playSong,    NULL, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textDumpOplReg,      dumpOplReg,    NULL, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textDumpCurrentInstrument,      dumpCurrentInstrument,    NULL, NULL},
   {MENU_ITEM_TYPE_PARAMETER,         textPartMidiInstrument,  NULL, NULL,      &partMidiInstrument},

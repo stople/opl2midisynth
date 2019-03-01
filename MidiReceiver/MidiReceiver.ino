@@ -306,3 +306,92 @@ void setPartMidiPos()
 {
   setPartParam(partMidiInstrument.val, partMidiPos.val);
 }
+
+//Hardcode some demo
+
+
+#include "stunts.h"
+
+unsigned long offset       = 0;
+unsigned long songLength   = 0;
+//unsigned long songDuration = 0;
+byte codeShortDelay    = 0;
+byte codeLongDelay     = 0;
+byte registerMapLength = 0;
+//byte registerMap[256];
+
+
+void playSong() {
+  unsigned long time = millis();
+
+  loadDroSong();
+
+  while (songLength > 0) {
+    int wait = playDroSong();
+    wait -= (millis() - time);      // Take into account time that was spent on IO.
+
+    if (wait > 0) {
+      delay(wait);
+      time = millis();
+    }
+
+    songLength --;
+  }
+}
+
+
+
+uint16_t droOffset = 0;
+uint8_t readDroByte()
+{
+  return pgm_read_byte_near(load_005_dro + droOffset++);
+}
+
+void loadDroSong() {
+  //droFile = SD.open(fileName, FILE_READ);
+  //droFile.seek(12);
+  droOffset = 12;
+
+  songLength  = readDroByte();
+  songLength += readDroByte() << 8;
+  songLength += readDroByte() << 16;
+  songLength += readDroByte() << 24;
+
+//  songDuration  = readDroByte();
+//  songDuration += readDroByte() << 8;
+//  songDuration += readDroByte() << 16;
+//  songDuration += readDroByte() << 24;
+
+  //droFile.seek(23);
+  droOffset = 23;
+  codeShortDelay = readDroByte();
+  codeLongDelay  = readDroByte();
+  registerMapLength = readDroByte();
+
+  //for (byte i = 0; i < registerMapLength; i ++) {
+  //  registerMap[i] = readDroByte();
+  //}
+}
+
+uint8_t getRegisterFromCode(uint8_t code)
+{
+  return pgm_read_byte_near(load_005_dro + code + 26);
+}
+
+
+
+int playDroSong() {
+  byte code = readDroByte();
+  byte data = readDroByte();
+
+  if (code == codeShortDelay) {
+    return data + 1;
+  } else if (code == codeLongDelay) {
+    return (data + 1) << 8;
+  } else if (code < 128) {
+    //opl2.write(registerMap[code], data);
+    Opl2Instrument1._opl2.write(getRegisterFromCode(code), data);
+  }
+
+  return 0;
+}
