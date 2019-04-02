@@ -131,6 +131,15 @@ void Opl2Instrument::onNoteOff(byte channel, byte note, byte velocity) {
 	}
 }
 
+/**
+ * Turn off all channels
+ */
+void Opl2Instrument::silence() {
+  for (byte i = 0; i < OPL2_NUM_CHANNELS; i ++) {
+    _opl2.setKeyOn(i, false);
+  }
+}
+
 
 
 /**

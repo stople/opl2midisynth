@@ -24,6 +24,7 @@ class Opl2Instrument
   void onProgramChange(byte channel, byte program);
   void onControlChange(byte channel, byte control, byte value);
   void onSystemReset();
+  void silence();
 
   	OPL2 _opl2;
 

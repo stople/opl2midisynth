@@ -337,6 +337,8 @@ void playSong() {
 
     songLength --;
   }
+
+  Opl2Instrument1.silence();
 }
 
 
