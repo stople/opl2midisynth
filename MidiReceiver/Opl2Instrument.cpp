@@ -104,11 +104,11 @@ void Opl2Instrument::onNoteOn(byte channel, byte note, byte velocity) {
 	// Calculate octave and note number and play note!
 	byte opl2Octave = 4;
 	byte opl2Note = NOTE_C;
-	if (channel != MIDI_DRUM_CHANNEL) {
+	/*if (channel != MIDI_DRUM_CHANNEL) {
 		note = max(24, min(note, 119));
 		opl2Octave = 1 + (note - 24) / 12;
 		opl2Note   = note % 12;
-	}
+	}*/
 	_opl2.playNote(i, opl2Octave, opl2Note);
 	
 	//HACK - set frequency
