@@ -202,18 +202,18 @@ void playSong();
 
 
 MENU_ITEM mainMenu[] = {
-  {MENU_ITEM_TYPE_MAIN_MENU_HEADER,  NULL,                NULL,              mainMenu,  NULL},
-  {MENU_ITEM_TYPE_PARAMETER,         textDebugInput,      NULL,              NULL,      &debugMode},
-  {MENU_ITEM_TYPE_PARAMETER,         textMidiInstrument,  setMidiInstrument, NULL,      &midiInstrument},
-  {MENU_ITEM_TYPE_SUB_MENU,          textInstrumentTweak, NULL,              tweakMenu, NULL},
-  {MENU_ITEM_TYPE_COMMAND,           textAbout,           NULL,    NULL, NULL},
-  {MENU_ITEM_TYPE_COMMAND,           textDemo,            playSong,    NULL, NULL},
-  {MENU_ITEM_TYPE_SUB_MENU,          textMidiTools,       NULL,              midiToolsMenu, NULL},
-  {MENU_ITEM_TYPE_COMMAND,           textDumpOplReg,      dumpOplReg,    NULL, NULL},
-  {MENU_ITEM_TYPE_COMMAND,           textDumpCurrentInstrument,      dumpCurrentInstrument,    NULL, NULL},
-  {MENU_ITEM_TYPE_PARAMETER,         textPartMidiInstrument,  NULL, NULL,      &partMidiInstrument},
-  {MENU_ITEM_TYPE_PARAMETER,         textPartMidiPos,  setPartMidiPos, NULL,      &partMidiPos},
-  {MENU_ITEM_TYPE_END_OF_MENU,       "",                NULL,                       NULL, NULL}
+  {MENU_ITEM_TYPE_MAIN_MENU_HEADER,  NULL,                           NULL,                  mainMenu,      NULL},
+  {MENU_ITEM_TYPE_PARAMETER,         textDebugInput,                 NULL,                  NULL,          &debugMode},
+  {MENU_ITEM_TYPE_PARAMETER,         textMidiInstrument,             setMidiInstrument,     NULL,          &midiInstrument},
+  {MENU_ITEM_TYPE_SUB_MENU,          textInstrumentTweak,            NULL,                  tweakMenu,     NULL},
+  {MENU_ITEM_TYPE_COMMAND,           textAbout,                      NULL,                  NULL,          NULL},
+  {MENU_ITEM_TYPE_COMMAND,           textDemo,                       playSong,              NULL,          NULL},
+  {MENU_ITEM_TYPE_SUB_MENU,          textMidiTools,                  NULL,                  midiToolsMenu, NULL},
+  {MENU_ITEM_TYPE_COMMAND,           textDumpOplReg,                 dumpOplReg,            NULL,          NULL},
+  {MENU_ITEM_TYPE_COMMAND,           textDumpCurrentInstrument,      dumpCurrentInstrument, NULL,          NULL},
+  {MENU_ITEM_TYPE_PARAMETER,         textPartMidiInstrument,         NULL,                  NULL,          &partMidiInstrument},
+  {MENU_ITEM_TYPE_PARAMETER,         textPartMidiPos,                setPartMidiPos,        NULL,          &partMidiPos},
+  {MENU_ITEM_TYPE_END_OF_MENU,       "",                             NULL,                  NULL,          NULL}
 };
 
 
