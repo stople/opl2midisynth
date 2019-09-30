@@ -7,6 +7,37 @@
 // Input: Stream of MIDI data
 // Output: OPL2 data stream
 
+// Connections:
+//
+//  0..1:     Midi
+//  2..7:     LCD
+//  8..11+13: OPL2
+//  A0..A3:   Menu
+//  A4:       Potensiometer
+//
+//  0 MIDI rx
+//  1 MIDI tx
+//  2 LCD d7
+//  3 LCD d6
+//  4 LCD d5
+//  5 LCD d4
+//  6 LCD en
+//  7 LCD rs
+//  8 OPL2 Reset
+//  9 OPL2 A0
+// 10 OPL2 Latch
+// 11 OPL2 Data
+// 12
+// 13 OPL2 Shift
+//
+// A0 MENU back
+// A1 MENU left
+// A2 MENU right
+// A3 MENU enter
+// A4 MENU potensiometer
+// A5
+
+
 #include <LiquidCrystal.h>
 
 
