@@ -73,5 +73,8 @@ PARAMETER parFNumber {0, 1023, NULL, setCustomInstrument};
 PARAMETER parDeepTremolo {0, 1, disableEnableNames, setCustomInstrument};
 PARAMETER parDeepVibrato {0, 1, disableEnableNames, setCustomInstrument};
 
+//Monitor placeholders
+PARAMETER monMidiInput {0, 0, NULL, NULL};
+
 
 #endif

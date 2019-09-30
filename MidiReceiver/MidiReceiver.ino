@@ -98,21 +98,62 @@ int midiToFrequency(int midiPitch)
   return (int)exptone;
 }
 
+int fetchSerial()
+{
+  int data = Serial.read();
+  return data;
+}
+
+
+void appendToMonitor(char c)
+{
+  MENU_ITEM* m = getCurrentMenuItem();
+  //if (m->MenuItemParameter == &monMidiInput)
+  {
+    //Make space for 3 chars
+
+    for (int i = 0; i < 16 - 3; ++i)
+    {
+      monitorText[i] = monitorText[i + 3];
+    }
+
+    byte dataB = (byte)c;
+    InsertHex8(&dataB, 1, &monitorText[16 - 3]);
+  }
+
+  Serial.print("Midi: ");
+  Serial.println((unsigned char)c);
+  
+  //monitorText[2] = 'T';
+  //return data;
+}
 
 void readMidiFromSerial() {
+  /*if (Serial.available() >= 1)
+  {
+    appendToMonitor(fetchSerial());
+  }
+  return;*/
+  
+  //while (Serial.available() && Serial.peek()
   if (Serial.available() >= 3)
   {
-    int cmd = Serial.read();
+    int cmd = fetchSerial();
     if (cmd < 128) return;
+    int origCmd = cmd;
     int channel = cmd & 0x0F;
     cmd >>= 4;
     switch (cmd){
       case 8: //Note off
       {
-        int pitch = Serial.read();
+        int pitch = fetchSerial();
+        int velocity = fetchSerial();
         if (pitch >= 128) return;
-        int velocity = Serial.read();
         if (velocity >= 128) return;
+
+        appendToMonitor(origCmd);
+        appendToMonitor(pitch);
+        appendToMonitor(velocity);
 
         Opl2Instrument1.onNoteOff(channel, pitch, velocity);
 
@@ -121,9 +162,9 @@ void readMidiFromSerial() {
 
       case 9: //Note on
       {
-        int pitch = Serial.read();
+        int pitch = fetchSerial();
+        int velocity = fetchSerial();
         if (pitch >= 128) return;
-        int velocity = Serial.read();
         if (velocity >= 128) return;
   
         int noteOn = 0;
@@ -132,9 +173,40 @@ void readMidiFromSerial() {
 
         Opl2Instrument1.onNoteOn(channel, pitch, velocity);
         
+        appendToMonitor(origCmd);
+        appendToMonitor(pitch);
+        appendToMonitor(velocity);
  
         break;
   
+      }
+      case 11: //Control change (pedal)
+      {
+        int controller = fetchSerial();
+        int value = fetchSerial();
+
+        appendToMonitor(origCmd);
+        appendToMonitor(controller);
+        appendToMonitor(value);
+
+        Opl2Instrument1.onControlChange(channel, controller, value);
+        
+
+        if (controller == 64) //Sustain pedal
+        {
+          Opl2Instrument1.onSustain(value);
+        }
+
+        
+      }
+
+      default: //other
+      {
+        if (origCmd != 0xFE)
+        {
+          appendToMonitor(origCmd);
+          //while (Serial.available() && (cmd = fetchSerial()) < 128) appendToMonitor(cmd); //cmd parameters, busy wait
+        }
       }
     }
   }  
@@ -170,11 +242,23 @@ void readButtons()
 
 }
 
+
+uint16_t lastLedRefresh;
+
 void loop() {
 
   readButtons();
   if (debugMode.val) debugInterface();
-  else readMidiFromSerial();  
+  else readMidiFromSerial();
+
+  uint16_t currentTime = millis();
+  if (currentTime - lastLedRefresh > 1000)
+  {
+    lastLedRefresh = currentTime;
+    drawMenuOption(); //Redraw every 1000 ms
+  }
+
+  
 }
 
 

@@ -19,6 +19,7 @@ const char textDumpOplReg[] PROGMEM = "Dump opl registers";
 const char textDumpCurrentInstrument[] PROGMEM = "Dump current instrument";
 const char textAbout[] PROGMEM = "About";
 const char textDemo[] PROGMEM = "Demo";
+const char textMidiTools[] PROGMEM = "Midi tools";
 const char textPartMidiInstrument[] PROGMEM = "Part midi instrument";
 const char textPartMidiPos[] PROGMEM = "Part midi pos";
 
@@ -43,6 +44,11 @@ const char textFNumber[] PROGMEM = "Frequency F-number";
 const char textDeepTremolo[] PROGMEM = "Deep tremolo";
 const char textDeepVibrato[] PROGMEM = "Deep vibrato";
 
+//Midi tools menu
+const char textMidiInputMonitor[] PROGMEM = "Midi in monitor";
+
+char monitorText[17]; //Hardcoded 16 byte ascii
+
 
 void drawMenuOption();
 
@@ -50,6 +56,12 @@ void drawMenuOption();
 
 static MENU_ITEM* currentMenu = mainMenu;
 static int currentMenuIndex = 1;
+
+MENU_ITEM* getCurrentMenuItem()
+{
+  return &currentMenu[currentMenuIndex];
+}
+
 
 void menuInput(int button)
 {
@@ -86,6 +98,7 @@ void menuInput(int button)
     {
       case MENU_ITEM_TYPE_SUB_MENU:
       currentMenu = m->MenuItemSubMenu;
+      currentMenuIndex = 1;
       break;
 
       case MENU_ITEM_TYPE_PARAMETER:
@@ -126,7 +139,7 @@ void drawMenuOption(){
     lcd.setCursor(0, 1);
     
     //printString(" (");
-    Serial.print(" (");
+    //Serial.print(" (");
 
     sprintf(buffer, "%d", p->val);
     printString(buffer);
@@ -140,8 +153,18 @@ void drawMenuOption(){
       //Serial.print(buffer);
       printString(buffer);
     }
-    Serial.print(")");
+    //Serial.print(")");
     //printString(")");
+  }
+  else if (m->MenuItemType == MENU_ITEM_TYPE_MONITOR)
+  {
+    lcd.setCursor(0, 1);
+    //monitorText[16] = 0;
+    //monitorText[5] = 'S';
+    for (int i = 0; i < 16; ++i) printChar(monitorText[i]);
+    //for (int i = 0; i < 16; ++i) printChar('A');
+    //printString(monitorText);
+    
   }
   Serial.print("\n");  
 }
@@ -185,6 +208,7 @@ MENU_ITEM mainMenu[] = {
   {MENU_ITEM_TYPE_SUB_MENU,          textInstrumentTweak, NULL,              tweakMenu, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textAbout,           NULL,    NULL, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textDemo,            playSong,    NULL, NULL},
+  {MENU_ITEM_TYPE_SUB_MENU,          textMidiTools,       NULL,              midiToolsMenu, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textDumpOplReg,      dumpOplReg,    NULL, NULL},
   {MENU_ITEM_TYPE_COMMAND,           textDumpCurrentInstrument,      dumpCurrentInstrument,    NULL, NULL},
   {MENU_ITEM_TYPE_PARAMETER,         textPartMidiInstrument,  NULL, NULL,      &partMidiInstrument},
@@ -213,6 +237,12 @@ MENU_ITEM tweakMenu[] = {
   {MENU_ITEM_TYPE_PARAMETER,         textFNumber,                    NULL,       NULL,     &parFNumber},
   {MENU_ITEM_TYPE_PARAMETER,         textDeepTremolo,                NULL,       NULL,     &parDeepTremolo},
   {MENU_ITEM_TYPE_PARAMETER,         textDeepVibrato,                NULL,       NULL,     &parDeepVibrato},
+  {MENU_ITEM_TYPE_END_OF_MENU,       "",                             NULL,       NULL,     NULL}
+};
+
+MENU_ITEM midiToolsMenu[] = {
+  {MENU_ITEM_TYPE_SUB_MENU_HEADER,   "",                             NULL,       mainMenu, NULL},
+  {MENU_ITEM_TYPE_MONITOR,           textMidiInputMonitor,           NULL,       NULL,     &monMidiInput},
   {MENU_ITEM_TYPE_END_OF_MENU,       "",                             NULL,       NULL,     NULL}
 };
 

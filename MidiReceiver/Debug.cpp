@@ -7,8 +7,11 @@
 #include "Parameters.h"
 void incrementMidiInstrument();
 
+void printChar(char c); //Print to uart + LCD
+void printString(char *s); //Print to uart + LCD
 
 void debugInterface() {
+  /*
   if (Serial.available())
   {
     int cmd = Serial.read();
@@ -75,18 +78,31 @@ void debugInterface() {
     }
     
   }
-
+*/
 }
 
 
+void InsertHex8(uint8_t *data, uint8_t length, uint8_t *dest) // prints 8-bit data in hex with leading zeroes (https://forum.arduino.cc/index.php?topic=38107.0)
+{
+  //Note: Does not append string stop byte (0)
+  uint8_t *p = dest;
+       char tmp[16];
+       for (int i=0; i<length; i++) { 
+         sprintf(tmp, "%.2X",data[i]); 
 
+         *dest++ = tmp[0];
+         *dest++ = tmp[1];
+         *dest++ = ' ';
+       }
+}
 
 void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex with leading zeroes (https://forum.arduino.cc/index.php?topic=38107.0)
 {
      char tmp[16];
        for (int i=0; i<length; i++) { 
          sprintf(tmp, "%.2X",data[i]); 
-         Serial.print(tmp); Serial.print(" ");
+         //Serial.print(tmp); Serial.print(" ");
+         printString(tmp); printChar(" ");
        }
 }
 

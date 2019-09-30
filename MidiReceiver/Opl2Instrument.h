@@ -10,11 +10,12 @@ class Opl2Instrument
   
 	
   public:
-  
+
   static const byte MIDI_NUM_CHANNELS = 16;
   static const byte MIDI_DRUM_CHANNEL = 10;
   
   static const byte CONTROL_VOLUME = 7;
+  static const byte CONTROL_SUSTAIN = 64;
   static const byte CONTROL_ALL_SOUND_OFF = 120;
   static const byte CONTROL_RESET_ALL = 121;
   static const byte CONTROL_ALL_NOTES_OFF = 123;
@@ -23,6 +24,7 @@ class Opl2Instrument
   void onNoteOff(byte channel, byte note, byte velocity);
   void onProgramChange(byte channel, byte program);
   void onControlChange(byte channel, byte control, byte value);
+  void onSustain(byte value);
   void onSystemReset();
   void silence();
 
@@ -37,14 +39,15 @@ struct ChannelMapping {
 	float midiVelocity;
 	float op1Level;
 	float op2Level;
+  bool isSustained;
 };
 
   
 	ChannelMapping _channelMap[OPL2_NUM_CHANNELS];
 	byte _oldestChannel[OPL2_NUM_CHANNELS];
 	byte _programMap[MIDI_NUM_CHANNELS];
-	float _channelVolumes[MIDI_NUM_CHANNELS]; 
-
+	float _channelVolumes[MIDI_NUM_CHANNELS];
+  bool _sustain;
   
   byte getFreeChannel(byte midiChannel);
   void setOpl2ChannelVolume(byte opl2Channel, byte midiChannel);

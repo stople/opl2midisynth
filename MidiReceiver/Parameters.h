@@ -47,5 +47,7 @@ extern PARAMETER parFNumber;
 extern PARAMETER parDeepTremolo;
 extern PARAMETER parDeepVibrato;
 
+//Monitor placeholders
+extern PARAMETER monMidiInput;
 
 #endif

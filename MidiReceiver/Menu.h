@@ -29,15 +29,21 @@ enum {
   MENU_ITEM_TYPE_COMMAND          = 3,
   MENU_ITEM_TYPE_TOGGLE           = 4,
   MENU_ITEM_TYPE_END_OF_MENU      = 5,
-  MENU_ITEM_TYPE_PARAMETER        = 6
+  MENU_ITEM_TYPE_PARAMETER        = 6,
+  MENU_ITEM_TYPE_MONITOR          = 7
 } MENU_ITEM_TYPE;
 
 
 extern MENU_ITEM mainMenu[];
 extern MENU_ITEM tweakMenu[];
+extern MENU_ITEM midiToolsMenu[];
+
+extern char monitorText[17];
 
 void menuInput(int button);
 void setCurrentParameterFromPotmeter(int potmeter);
+void drawMenuOption();
 
+MENU_ITEM* getCurrentMenuItem();
 
 #endif
