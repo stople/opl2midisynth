@@ -38,6 +38,9 @@
 // A5
 
 
+#include <SoftwareSerial.h>
+SoftwareSerial midiSerial(12, 12); // RX
+
 #include <LiquidCrystal.h>
 
 
@@ -109,6 +112,7 @@ void setup() {
 //Midi input
   //Serial.begin(57600);
   Serial.begin(31250);
+  midiSerial.begin(31250);
 }
 
 //60 -> tone C4 (262)
@@ -129,9 +133,9 @@ int midiToFrequency(int midiPitch)
   return (int)exptone;
 }
 
-int fetchSerial()
+int fetchMidiSerial()
 {
-  int data = Serial.read();
+  int data = midiSerial.read();
   return data;
 }
 
@@ -160,14 +164,14 @@ void appendToMonitor(char c)
 void readMidiFromSerial() {
   /*if (Serial.available() >= 1)
   {
-    appendToMonitor(fetchSerial());
+    appendToMonitor(fetchMidiSerial());
   }
   return;*/
   
   //while (Serial.available() && Serial.peek()
-  if (Serial.available() >= 3)
+  if (midiSerial.available() >= 3)
   {
-    int cmd = fetchSerial();
+    int cmd = fetchMidiSerial();
     if (cmd < 128) return;
     int origCmd = cmd;
     int channel = cmd & 0x0F;
@@ -175,8 +179,8 @@ void readMidiFromSerial() {
     switch (cmd){
       case 8: //Note off
       {
-        int pitch = fetchSerial();
-        int velocity = fetchSerial();
+        int pitch = fetchMidiSerial();
+        int velocity = fetchMidiSerial();
         if (pitch >= 128) return;
         if (velocity >= 128) return;
 
@@ -191,8 +195,8 @@ void readMidiFromSerial() {
 
       case 9: //Note on
       {
-        int pitch = fetchSerial();
-        int velocity = fetchSerial();
+        int pitch = fetchMidiSerial();
+        int velocity = fetchMidiSerial();
         if (pitch >= 128) return;
         if (velocity >= 128) return;
   
@@ -211,8 +215,8 @@ void readMidiFromSerial() {
       }
       case 11: //Control change (pedal)
       {
-        int controller = fetchSerial();
-        int value = fetchSerial();
+        int controller = fetchMidiSerial();
+        int value = fetchMidiSerial();
 
         appendToMonitor(origCmd);
         appendToMonitor(controller);
@@ -234,7 +238,7 @@ void readMidiFromSerial() {
         if (origCmd != 0xFE)
         {
           appendToMonitor(origCmd);
-          //while (Serial.available() && (cmd = fetchSerial()) < 128) appendToMonitor(cmd); //cmd parameters, busy wait
+          //while (Serial.available() && (cmd = fetchMidiSerial()) < 128) appendToMonitor(cmd); //cmd parameters, busy wait
         }
       }
     }
