@@ -46,6 +46,7 @@ const char textDeepVibrato[] PROGMEM = "Deep vibrato";
 
 //Midi tools menu
 const char textMidiInputMonitor[] PROGMEM = "Midi in monitor";
+const char textQuarterTones[] PROGMEM = "Enable quarter tones";
 
 char monitorText[17]; //Hardcoded 16 byte ascii
 
@@ -243,6 +244,7 @@ MENU_ITEM tweakMenu[] = {
 MENU_ITEM midiToolsMenu[] = {
   {MENU_ITEM_TYPE_SUB_MENU_HEADER,   "",                             NULL,       mainMenu, NULL},
   {MENU_ITEM_TYPE_MONITOR,           textMidiInputMonitor,           NULL,       NULL,     &monMidiInput},
+  {MENU_ITEM_TYPE_PARAMETER,         textQuarterTones,               NULL,       NULL,     &parQuarterTones},
   {MENU_ITEM_TYPE_END_OF_MENU,       "",                             NULL,       NULL,     NULL}
 };
 

@@ -75,6 +75,7 @@ PARAMETER parDeepVibrato {0, 1, disableEnableNames, setCustomInstrument};
 
 //Monitor placeholders
 PARAMETER monMidiInput {0, 0, NULL, NULL};
+PARAMETER parQuarterTones {0, 1, disableEnableNames, NULL};
 
 
 #endif

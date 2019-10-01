@@ -3,6 +3,7 @@
 #define OPL2_INSTRUMENT_cpp
 
 #include "Opl2Instrument.h"
+#include "Parameters.h"
 
 #include <midi_instruments.h>
 #include <midi_drums.h>
@@ -122,8 +123,10 @@ void Opl2Instrument::onNoteOn(byte channel, byte note, byte velocity) {
 	_opl2.playNote(index, opl2Octave, opl2Note);
 	
 	//HACK - set frequency
+	int tonesInOctave = 12;
+	if (parQuarterTones.val == 1) tonesInOctave = 24;
 	float logTone = 8.781; //log2(440) (A4)
-	logTone += (float)(note - 69) / 12;
+	logTone += (float)(note - 69) / tonesInOctave;
 	double exptone = pow(2, logTone);
 	_opl2.setFrequency(index, exptone);
 }

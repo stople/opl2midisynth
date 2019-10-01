@@ -49,5 +49,6 @@ extern PARAMETER parDeepVibrato;
 
 //Monitor placeholders
 extern PARAMETER monMidiInput;
+extern PARAMETER parQuarterTones;
 
 #endif
