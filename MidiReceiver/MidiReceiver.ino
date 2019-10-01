@@ -138,8 +138,6 @@ int fetchSerial()
 
 void appendToMonitor(char c)
 {
-  MENU_ITEM* m = getCurrentMenuItem();
-  //if (m->MenuItemParameter == &monMidiInput)
   {
     //Make space for 3 chars
 
