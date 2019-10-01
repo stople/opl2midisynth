@@ -58,20 +58,29 @@ void drawMenuOption();
 static MENU_ITEM* currentMenu = mainMenu;
 static int currentMenuIndex = 1;
 
-MENU_ITEM* getCurrentMenuItem()
+void getCurrentMenuItem(MENU_ITEM *item)
 {
-  return &currentMenu[currentMenuIndex];
+  memcpy_P(item, &currentMenu[currentMenuIndex], sizeof(MENU_ITEM));
+}
+
+void getHeaderMenuItem(MENU_ITEM *item)
+{
+  memcpy_P(item, &currentMenu[currentMenuIndex], sizeof(MENU_ITEM));
 }
 
 
 void menuInput(int button)
 {
-  MENU_ITEM* m = &currentMenu[currentMenuIndex];
+  MENU_ITEM m;
+  getCurrentMenuItem(&m);
+
   if (button == 0) //Go back
   {
-    currentMenu = currentMenu[0].MenuItemSubMenu;
+    getHeaderMenuItem(&m);
+    currentMenu = m.MenuItemSubMenu;
     //currentMenuOption = mainMenu[1];
     currentMenuIndex = 1;
+    getCurrentMenuItem(&m);
     drawMenuOption();
   }
   else if (button == 1) //Left
@@ -79,7 +88,11 @@ void menuInput(int button)
     currentMenuIndex--;
     if (currentMenuIndex <= 0)
     {
-      while (currentMenu[++currentMenuIndex].MenuItemType != MENU_ITEM_TYPE_END_OF_MENU){}
+      do {
+        ++currentMenuIndex;
+        getCurrentMenuItem(&m);
+      }
+      while (m.MenuItemType != MENU_ITEM_TYPE_END_OF_MENU);
       --currentMenuIndex;
     }
     drawMenuOption();
@@ -87,7 +100,8 @@ void menuInput(int button)
   else if (button == 2) //Right
   {
     currentMenuIndex++;
-    if (currentMenu[currentMenuIndex].MenuItemType == MENU_ITEM_TYPE_END_OF_MENU)
+    getCurrentMenuItem(&m);
+    if (m.MenuItemType == MENU_ITEM_TYPE_END_OF_MENU)
     {
       currentMenuIndex = 1;
     }
@@ -95,20 +109,20 @@ void menuInput(int button)
   }
   else if (button == 3) //Enter
   {
-    switch (m->MenuItemType)
+    switch (m.MenuItemType)
     {
       case MENU_ITEM_TYPE_SUB_MENU:
-      currentMenu = m->MenuItemSubMenu;
+      currentMenu = m.MenuItemSubMenu;
       currentMenuIndex = 1;
       break;
 
       case MENU_ITEM_TYPE_PARAMETER:
       //incrementParameter((void*)m->MenuItemParameter);
-      if (m->MenuItemParameter->OnChange) m->MenuItemParameter->OnChange();
+      if (m.MenuItemParameter->OnChange) m.MenuItemParameter->OnChange();
       break;      
     }
 
-    if (m->MenuItemFunction) m->MenuItemFunction();
+    if (m.MenuItemFunction) m.MenuItemFunction();
     
     drawMenuOption();
 
@@ -127,15 +141,17 @@ void printStringFromProgMem(char* s)
 
 void drawMenuOption(){
   char buffer[40];
-  MENU_ITEM* m = &currentMenu[currentMenuIndex];
+  //MENU_ITEM m = &currentMenu[currentMenuIndex];
+  MENU_ITEM m;
+  getCurrentMenuItem(&m);
 
   //lcd.setCursor(0, 0);
   lcd.clear();
-  printStringFromProgMem(m->MenuItemText);
+  printStringFromProgMem(m.MenuItemText);
 
-  if (m->MenuItemType == MENU_ITEM_TYPE_PARAMETER)
+  if (m.MenuItemType == MENU_ITEM_TYPE_PARAMETER)
   {
-    PARAMETER* p = m->MenuItemParameter;
+    PARAMETER* p = m.MenuItemParameter;
 
     lcd.setCursor(0, 1);
     
@@ -157,7 +173,7 @@ void drawMenuOption(){
     //Serial.print(")");
     //printString(")");
   }
-  else if (m->MenuItemType == MENU_ITEM_TYPE_MONITOR)
+  else if (m.MenuItemType == MENU_ITEM_TYPE_MONITOR)
   {
     lcd.setCursor(0, 1);
     //monitorText[16] = 0;
@@ -173,10 +189,11 @@ void drawMenuOption(){
 
 void setCurrentParameterFromPotmeter(int potmeter)
 {
-  MENU_ITEM* m = &currentMenu[currentMenuIndex];
-  if (m->MenuItemType == MENU_ITEM_TYPE_PARAMETER)
+  MENU_ITEM m;
+  getCurrentMenuItem(&m);
+  if (m.MenuItemType == MENU_ITEM_TYPE_PARAMETER)
   {
-    PARAMETER* p = m->MenuItemParameter;
+    PARAMETER* p = m.MenuItemParameter;
     int newVal = (int)((float)potmeter / 1024 * (p->max + 1));
     if (newVal > p->max) newVal = p->max;
     if (newVal != p->val)
@@ -202,7 +219,7 @@ void playSong();
 
 
 
-MENU_ITEM mainMenu[] = {
+const MENU_ITEM mainMenu[] PROGMEM = {
   {MENU_ITEM_TYPE_MAIN_MENU_HEADER,  NULL,                           NULL,                  mainMenu,      NULL},
   {MENU_ITEM_TYPE_PARAMETER,         textDebugInput,                 NULL,                  NULL,          &debugMode},
   {MENU_ITEM_TYPE_PARAMETER,         textMidiInstrument,             setMidiInstrument,     NULL,          &midiInstrument},
@@ -218,7 +235,7 @@ MENU_ITEM mainMenu[] = {
 };
 
 
-MENU_ITEM tweakMenu[] = {
+const MENU_ITEM tweakMenu[] PROGMEM = {
   {MENU_ITEM_TYPE_SUB_MENU_HEADER,   "",                             NULL,       mainMenu, NULL},
   {MENU_ITEM_TYPE_PARAMETER,         textOperator,                   NULL,       NULL,     &parOperator},
   {MENU_ITEM_TYPE_PARAMETER,         textTremolo,                    NULL,       NULL,     &parTremolo},
@@ -241,7 +258,7 @@ MENU_ITEM tweakMenu[] = {
   {MENU_ITEM_TYPE_END_OF_MENU,       "",                             NULL,       NULL,     NULL}
 };
 
-MENU_ITEM midiToolsMenu[] = {
+const MENU_ITEM midiToolsMenu[] PROGMEM = {
   {MENU_ITEM_TYPE_SUB_MENU_HEADER,   "",                             NULL,       mainMenu, NULL},
   {MENU_ITEM_TYPE_MONITOR,           textMidiInputMonitor,           NULL,       NULL,     &monMidiInput},
   {MENU_ITEM_TYPE_PARAMETER,         textQuarterTones,               NULL,       NULL,     &parQuarterTones},

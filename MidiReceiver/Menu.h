@@ -34,9 +34,9 @@ enum {
 } MENU_ITEM_TYPE;
 
 
-extern MENU_ITEM mainMenu[];
-extern MENU_ITEM tweakMenu[];
-extern MENU_ITEM midiToolsMenu[];
+extern const MENU_ITEM mainMenu[];
+extern const MENU_ITEM tweakMenu[];
+extern const MENU_ITEM midiToolsMenu[];
 
 extern char monitorText[17];
 
