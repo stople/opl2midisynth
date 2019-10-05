@@ -191,7 +191,10 @@ void readMidiFromSerial() {
   if (midiSerial.available() >= 3)
   {
     int cmd = fetchMidiSerial();
-    if (cmd < 128) return;
+    if (cmd < 128){
+      appendToMonitor(cmd);
+      return;
+    }
     int origCmd = cmd;
     int channel = cmd & 0x0F;
     cmd >>= 4;
@@ -200,12 +203,13 @@ void readMidiFromSerial() {
       {
         int pitch = fetchMidiSerial();
         int velocity = fetchMidiSerial();
-        if (pitch >= 128) return;
-        if (velocity >= 128) return;
 
         appendToMonitor(origCmd);
         appendToMonitor(pitch);
         appendToMonitor(velocity);
+
+        if (pitch >= 128) return;
+        if (velocity >= 128) return;
 
         Opl2Instrument1.onNoteOff(channel, pitch, velocity);
 
@@ -216,6 +220,11 @@ void readMidiFromSerial() {
       {
         int pitch = fetchMidiSerial();
         int velocity = fetchMidiSerial();
+
+        appendToMonitor(origCmd);
+        appendToMonitor(pitch);
+        appendToMonitor(velocity);
+ 
         if (pitch >= 128) return;
         if (velocity >= 128) return;
   
@@ -225,10 +234,6 @@ void readMidiFromSerial() {
 
         Opl2Instrument1.onNoteOn(channel, pitch, velocity);
         
-        appendToMonitor(origCmd);
-        appendToMonitor(pitch);
-        appendToMonitor(velocity);
- 
         break;
   
       }
