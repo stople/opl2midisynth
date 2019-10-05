@@ -167,6 +167,25 @@ void readMidiFromSerial() {
     appendToMonitor(fetchMidiSerial());
   }
   return;*/
+
+
+  //MIDI format:
+  //
+  // >= 0x80: Command
+  // <  0x80: Parameter
+  //
+  // MIDI commands:
+  // 8X: Note off             (note - velocity)
+  // 9X: Note on              (note - velocity) (Note: Velocity 0 may indicate note off)
+  // AX: Polyphonic pressure  (note - amount)
+  // BX: Controller           (controller - value)
+  // CX: Program change       (program)
+  // DX: Channel pressure     (amount)
+  // EX: Pitch bend           (amountL - amountH)
+  // F0-FF: System messages   (variable length)
+  //
+  // Last nibble in command (except for F0-FF) is MIDI channel number.
+  
   
   //while (Serial.available() && Serial.peek()
   if (midiSerial.available() >= 3)
