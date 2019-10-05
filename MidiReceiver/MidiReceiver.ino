@@ -110,8 +110,8 @@ void setup() {
   PotmeterLock = analogRead(PotmeterPin);
 
 //Midi input
-  //Serial.begin(57600);
-  Serial.begin(31250);
+  Serial.begin(57600);
+  //Serial.begin(31250);
   midiSerial.begin(31250);
 }
 
