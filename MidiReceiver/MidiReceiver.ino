@@ -142,7 +142,7 @@ int fetchMidiSerial()
 
 void appendToMonitor(char c)
 {
-  {
+  //{
     //Make space for 3 chars
 
     for (int i = 0; i < 16 - 3; ++i)
@@ -152,10 +152,16 @@ void appendToMonitor(char c)
 
     byte dataB = (byte)c;
     InsertHex8(&dataB, 1, &monitorText[16 - 3]);
-  }
+  //}
+
+//uint8_t value[4];
+
 
   Serial.print("Midi: ");
-  Serial.println((unsigned char)c);
+  //Serial.println((unsigned char)c);
+
+  PrintHex8(&dataB, 1);
+  Serial.println("");
   
   //monitorText[2] = 'T';
   //return data;
