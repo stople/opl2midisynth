@@ -162,13 +162,13 @@ void appendToMonitor(char c)
 
 //uint8_t value[4];
 
-
+/*
   Serial.print("Midi: ");
   //Serial.println((unsigned char)c);
 
   PrintHex8(&dataB, 1);
   Serial.println("");
-  
+  */
   //monitorText[2] = 'T';
   //return data;
 }
