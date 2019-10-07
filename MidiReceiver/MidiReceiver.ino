@@ -272,6 +272,7 @@ void readMidiFromSerial() {
       {
         if (loadMidiCommand(midiBuffer, 2)) return;
         int program = midiBuffer[1];
+        Opl2Instrument1.onProgramChange(channel, program);
         break;
       }
 //    case 0x0D: //Channel pressure (Not implemented)

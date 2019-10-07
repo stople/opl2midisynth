@@ -9,6 +9,7 @@
 #include <midi_drums.h>
 
 Opl2Instrument Opl2Instrument1; // preinstatiate
+void setMidiInstrument();
 
 
 /**
@@ -183,6 +184,9 @@ void Opl2Instrument::silence() {
  */
 void Opl2Instrument::onProgramChange(byte channel, byte program) {
 	_programMap[channel] = min(program, 127);
+
+ midiInstrument.val = program;
+ setMidiInstrument();
 }
 
 /**
