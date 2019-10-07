@@ -139,6 +139,12 @@ int fetchMidiSerial()
   return data;
 }
 
+int peekMidiSerial()
+{
+  int data = midiSerial.peek();
+  return data;
+}
+
 
 void appendToMonitor(char c)
 {
@@ -167,14 +173,24 @@ void appendToMonitor(char c)
   //return data;
 }
 
-void readMidiFromSerial() {
-  /*if (Serial.available() >= 1)
+int loadMidiCommand(byte* out, int minimumSize)
+{
+  if (midiSerial.available() < minimumSize) return 1;
+  //Enough bytes received, try to fetch command
+  *out = fetchMidiSerial();
+  appendToMonitor(*out++);
+  minimumSize--;
+  while (minimumSize)
   {
-    appendToMonitor(fetchMidiSerial());
+    if (peekMidiSerial() >= 0x80) return 2;
+    *out = fetchMidiSerial();
+    appendToMonitor(*out++);
+    minimumSize--;
   }
-  return;*/
+  return 0;
+}
 
-
+void readMidiFromSerial() {
   //MIDI format:
   //
   // >= 0x80: Command
@@ -192,12 +208,12 @@ void readMidiFromSerial() {
   //
   // Last nibble in command (except for F0-FF) is MIDI channel number.
   
-  
-  //while (Serial.available() && Serial.peek()
-  if (midiSerial.available() >= 3)
+  byte midiBuffer[10];
+  if (midiSerial.available() >= 1)
   {
-    int cmd = fetchMidiSerial();
+    int cmd = peekMidiSerial();
     if (cmd < 128){
+      fetchMidiSerial();
       appendToMonitor(cmd);
       return;
     }
@@ -205,34 +221,22 @@ void readMidiFromSerial() {
     int channel = cmd & 0x0F;
     cmd >>= 4;
     switch (cmd){
-      case 8: //Note off
+      case 0x08: //Note off
       {
-        int pitch = fetchMidiSerial();
-        int velocity = fetchMidiSerial();
-
-        appendToMonitor(origCmd);
-        appendToMonitor(pitch);
-        appendToMonitor(velocity);
-
-        if (pitch >= 128) return;
-        if (velocity >= 128) return;
+        if (loadMidiCommand(midiBuffer, 3)) return;
+        int pitch = midiBuffer[1];
+        int velocity = midiBuffer[2];
 
         Opl2Instrument1.onNoteOff(channel, pitch, velocity);
 
         break;
       }
 
-      case 9: //Note on
+      case 0x09: //Note on
       {
-        int pitch = fetchMidiSerial();
-        int velocity = fetchMidiSerial();
-
-        appendToMonitor(origCmd);
-        appendToMonitor(pitch);
-        appendToMonitor(velocity);
- 
-        if (pitch >= 128) return;
-        if (velocity >= 128) return;
+        if (loadMidiCommand(midiBuffer, 3)) return;
+        int pitch = midiBuffer[1];
+        int velocity = midiBuffer[2];
   
         int noteOn = 0;
         if (velocity >= 1) noteOn = 1;
@@ -243,28 +247,50 @@ void readMidiFromSerial() {
         break;
   
       }
-      case 11: //Control change (pedal)
+//    case 0x0A: //Polyphonic pressure (Not implemented)
+//    {
+//      if (loadMidiCommand(midiBuffer, 3) return;
+//      int pitch = midiBuffer[1];
+//      int amount = midiBuffer[2];
+//      break;
+//    }
+      case 0x0B: //Control change (pedal)
       {
-        int controller = fetchMidiSerial();
-        int value = fetchMidiSerial();
-
-        appendToMonitor(origCmd);
-        appendToMonitor(controller);
-        appendToMonitor(value);
+        if (loadMidiCommand(midiBuffer, 3)) return;
+        int controller = midiBuffer[1];
+        int value = midiBuffer[2];
 
         Opl2Instrument1.onControlChange(channel, controller, value);
-        
 
         if (controller == 64) //Sustain pedal
         {
           Opl2Instrument1.onSustain(value);
         }
-
-        
+        break;
       }
+      case 0x0C: //Program change (Change instrument)
+      {
+        if (loadMidiCommand(midiBuffer, 2)) return;
+        int program = midiBuffer[1];
+        break;
+      }
+//    case 0x0D: //Channel pressure (Not implemented)
+//    {
+//      if (loadMidiCommand(midiBuffer, 2) return;
+//      int amount = midiBuffer[1];
+//      break;
+//    }
+//    case 0x0E: //Pitch bend (Not implemented)
+//    {
+//      if (loadMidiCommand(midiBuffer, 3) return;
+//      int amountL = midiBuffer[1];
+//      int amountH = midiBuffer[2];
+//      break;
+//    }
 
       default: //other
       {
+        fetchMidiSerial();
         if (origCmd != 0xFE)
         {
           appendToMonitor(origCmd);
